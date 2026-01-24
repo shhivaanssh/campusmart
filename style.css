@@ -1,0 +1,100 @@
+/* ===== CSS RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f7fa;
+  color: #222;
+  line-height: 1.6;
+}
+/* ===== NAVBAR ===== */
+.navbar {
+  background-color: #1e293b;
+  padding: 1rem 0;
+}
+
+.nav-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links li {
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+/* ===== MAIN LAYOUT ===== */
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 2rem auto;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 8px;
+}
+
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+/* ===== BUTTON ===== */
+.primary-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* ===== PRODUCTS ===== */
+.products {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.secondary-btn {
+  margin-top: 1rem;
+  background-color: #e5e7eb;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}

@@ -21,19 +21,33 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="container">
+ <main class="container">
   <section class="hero">
     <h2>Buy & Sell Items Within Your Campus</h2>
     <p>
       CampusMart helps students buy and sell books, electronics, furniture,
       and more — safely and easily.
     </p>
-    <button class="primary-btn" id="exploreBtn">Explore Products</button>
   </section>
 
-  <section class="products" id="productList">
-    <!-- Products will be injected here by JavaScript -->
+  <!-- Filters -->
+  <section class="filters">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search products..."
+    />
+
+    <select id="categoryFilter">
+      <option value="All">All</option>
+      <option value="Books">Books</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Furniture">Furniture</option>
+    </select>
   </section>
+
+  <!-- Products -->
+  <section class="products" id="productList"></section>
 </main>
 <script src="script.js"></script>
 </body>

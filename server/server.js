@@ -1,16 +1,19 @@
 const express = require("express");
+const connectDB = require("./config/db");
 
 const app = express();
 const PORT = 5000;
 
-// ✅ BODY PARSER (THIS IS THE FIX)
+// Connect Database
+connectDB();
+
+// Middleware
 app.use(express.json());
 
 // Routes
 const productRoutes = require("./routes/productRoutes");
 app.use("/api/products", productRoutes);
 
-// Root route
 app.get("/", (req, res) => {
   res.send("CampusMart API is running");
 });

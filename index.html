@@ -1,54 +1,720 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>CampusMart</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusMart — Campus Marketplace</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <!-- Feather Icons CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
 
-  <body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <h1 class="logo">CampusMart</h1>
+  <!-- ==========================================
+       TOAST NOTIFICATION
+  ========================================== -->
+  <div id="toast" class="toast" aria-live="polite"></div>
 
-      <ul class="nav-links">
-        <li>Home</li>
-        <li>Products</li>
-        <li>Login</li>
-        <li>Register</li>
-      </ul>
+  <!-- ==========================================
+       MODAL OVERLAY (Auth / Add Product)
+  ========================================== -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <!-- LOGIN MODAL -->
+    <div id="modal-login" class="modal-card hidden">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
+        <i data-feather="x"></i>
+      </button>
+      <div class="modal-header">
+        <span class="modal-logo">C</span>
+        <h2>Welcome back</h2>
+        <p>Sign in to your CampusMart account</p>
+      </div>
+      <form id="form-login" class="modal-form" novalidate>
+        <div class="form-group">
+          <label for="login-email">Email address</label>
+          <div class="input-wrapper">
+            <i data-feather="mail"></i>
+            <input type="email" id="login-email" placeholder="you@campus.edu" autocomplete="email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrapper">
+            <i data-feather="lock"></i>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" class="toggle-password" onclick="togglePassword('login-password')" aria-label="Toggle password">
+              <i data-feather="eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="login-error" class="form-error hidden"></div>
+        <button type="submit" class="btn-primary btn-full" id="btn-login-submit">
+          <span>Sign in</span>
+          <i data-feather="arrow-right"></i>
+        </button>
+      </form>
+      <p class="modal-switch">
+        Don't have an account?
+        <button onclick="switchModal('signup')" class="link-btn">Create one →</button>
+      </p>
     </div>
-  </nav>
 
-  <!-- Main Content -->
- <main class="container">
-  <section class="hero">
-    <h2>Buy & Sell Items Within Your Campus</h2>
-    <p>
-      CampusMart helps students buy and sell books, electronics, furniture,
-      and more — safely and easily.
-    </p>
-  </section>
+    <!-- SIGNUP MODAL -->
+    <div id="modal-signup" class="modal-card hidden">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
+        <i data-feather="x"></i>
+      </button>
+      <div class="modal-header">
+        <span class="modal-logo">C</span>
+        <h2>Join CampusMart</h2>
+        <p>Create your free account today</p>
+      </div>
+      <form id="form-signup" class="modal-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="signup-firstname">First name</label>
+            <div class="input-wrapper">
+              <i data-feather="user"></i>
+              <input type="text" id="signup-firstname" placeholder="Alex" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-lastname">Last name</label>
+            <div class="input-wrapper">
+              <i data-feather="user"></i>
+              <input type="text" id="signup-lastname" placeholder="Smith" required />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Campus email</label>
+          <div class="input-wrapper">
+            <i data-feather="mail"></i>
+            <input type="email" id="signup-email" placeholder="you@campus.edu" autocomplete="email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <div class="input-wrapper">
+            <i data-feather="lock"></i>
+            <input type="password" id="signup-password" placeholder="Min. 8 characters" autocomplete="new-password" required />
+            <button type="button" class="toggle-password" onclick="togglePassword('signup-password')" aria-label="Toggle password">
+              <i data-feather="eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="signup-error" class="form-error hidden"></div>
+        <button type="submit" class="btn-primary btn-full" id="btn-signup-submit">
+          <span>Create account</span>
+          <i data-feather="arrow-right"></i>
+        </button>
+      </form>
+      <p class="modal-switch">
+        Already have an account?
+        <button onclick="switchModal('login')" class="link-btn">Sign in →</button>
+      </p>
+    </div>
 
-  <!-- Filters -->
-  <section class="filters">
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search products..."
-    />
+    <!-- ADD PRODUCT MODAL -->
+    <div id="modal-add-product" class="modal-card modal-wide hidden">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
+        <i data-feather="x"></i>
+      </button>
+      <div class="modal-header">
+        <h2>List a Product</h2>
+        <p>Fill in the details to post your item for sale</p>
+      </div>
+      <form id="form-add-product" class="modal-form" enctype="multipart/form-data" novalidate>
+        <div class="form-group">
+          <label for="product-title">Product title</label>
+          <div class="input-wrapper">
+            <i data-feather="tag"></i>
+            <input type="text" id="product-title" placeholder="e.g. Engineering Textbook — 3rd Ed." required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="product-price">Price (₹)</label>
+            <div class="input-wrapper">
+              <i data-feather="dollar-sign"></i>
+              <input type="number" id="product-price" placeholder="0.00" min="0" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="product-category">Category</label>
+            <div class="input-wrapper select-wrapper">
+              <i data-feather="layers"></i>
+              <select id="product-category" required>
+                <option value="" disabled selected>Select category</option>
+                <option value="books">Books & Notes</option>
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="furniture">Furniture</option>
+                <option value="sports">Sports & Fitness</option>
+                <option value="stationery">Stationery</option>
+                <option value="food">Food & Snacks</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="product-description">Description</label>
+          <textarea id="product-description" placeholder="Describe your item — condition, features, reason for selling…" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Product image</label>
+          <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('product-image').click()">
+            <i data-feather="upload-cloud"></i>
+            <p>Click or drag an image here</p>
+            <span>PNG, JPG up to 5MB</span>
+            <input type="file" id="product-image" accept="image/*" hidden />
+          </div>
+          <div id="image-preview-wrap" class="image-preview-wrap hidden">
+            <img id="image-preview" src="" alt="Preview" />
+            <button type="button" onclick="clearImagePreview()" class="remove-image" aria-label="Remove image">
+              <i data-feather="x"></i>
+            </button>
+          </div>
+        </div>
+        <div id="product-error" class="form-error hidden"></div>
+        <button type="submit" class="btn-primary btn-full" id="btn-product-submit">
+          <span>Post Listing</span>
+          <i data-feather="send"></i>
+        </button>
+      </form>
+    </div>
+  </div>
 
-    <select id="categoryFilter">
-      <option value="All">All</option>
-      <option value="Books">Books</option>
-      <option value="Electronics">Electronics</option>
-      <option value="Furniture">Furniture</option>
-    </select>
-  </section>
+  <!-- ==========================================
+       LANDING PAGE (shown when not logged in)
+  ========================================== -->
+  <div id="page-landing">
 
-  <!-- Products -->
-  <section class="products" id="productList"></section>
-</main>
-<script src="script.js"></script>
+    <!-- NAV -->
+    <nav class="nav-landing" id="navbar">
+      <div class="nav-container">
+        <a href="#" class="nav-logo">
+          <span class="logo-mark">C</span>
+          <span class="logo-text">CampusMart</span>
+        </a>
+        <div class="nav-links" id="nav-links">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link">How it works</a>
+          <a href="#categories" class="nav-link">Categories</a>
+        </div>
+        <div class="nav-actions">
+          <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <i data-feather="sun" class="icon-sun"></i>
+            <i data-feather="moon" class="icon-moon"></i>
+          </button>
+          <button class="btn-ghost" onclick="openModal('login')">Sign in</button>
+          <button class="btn-primary" onclick="openModal('signup')">
+            Get started
+            <i data-feather="arrow-right"></i>
+          </button>
+        </div>
+        <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Open menu">
+          <i data-feather="menu"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section" id="hero">
+      <!-- Animated background orbs -->
+      <div class="orb orb-1" aria-hidden="true"></div>
+      <div class="orb orb-2" aria-hidden="true"></div>
+      <div class="orb orb-3" aria-hidden="true"></div>
+      <!-- Dot grid overlay -->
+      <div class="dot-grid" aria-hidden="true"></div>
+
+      <div class="hero-container">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Now live on campus
+        </div>
+        <h1 class="hero-title">
+          Your campus.<br />
+          <span class="gradient-text">Your marketplace.</span>
+        </h1>
+        <p class="hero-subtitle">
+          Buy and sell anything — textbooks, electronics, furniture, and more —
+          with fellow students. No shipping. No hassle. Just campus.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary btn-hero" onclick="openModal('signup')">
+            Start selling free
+            <i data-feather="arrow-right"></i>
+          </button>
+          <button class="btn-ghost btn-hero" onclick="openModal('login')">
+            Browse listings
+            <i data-feather="grid"></i>
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="stat-value" id="stat-listings">2,400+</span>
+            <span class="stat-label">Active listings</span>
+          </div>
+          <div class="hero-stat-divider" aria-hidden="true"></div>
+          <div class="hero-stat">
+            <span class="stat-value">800+</span>
+            <span class="stat-label">Campus sellers</span>
+          </div>
+          <div class="hero-stat-divider" aria-hidden="true"></div>
+          <div class="hero-stat">
+            <span class="stat-value">₹0</span>
+            <span class="stat-label">Platform fees</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating product cards (decorative) -->
+      <div class="hero-cards" aria-hidden="true">
+        <div class="float-card fc-1">
+          <div class="fc-img fc-img-1"></div>
+          <div class="fc-info">
+            <span>Engineering Textbook</span>
+            <strong>₹350</strong>
+          </div>
+        </div>
+        <div class="float-card fc-2">
+          <div class="fc-img fc-img-2"></div>
+          <div class="fc-info">
+            <span>Laptop Stand</span>
+            <strong>₹620</strong>
+          </div>
+        </div>
+        <div class="float-card fc-3">
+          <div class="fc-img fc-img-3"></div>
+          <div class="fc-info">
+            <span>Noise-cancel Headphones</span>
+            <strong>₹1,200</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section" id="features">
+      <div class="section-container">
+        <div class="section-badge">Why CampusMart</div>
+        <h2 class="section-title">Everything you need,<br /> nothing you don't</h2>
+        <p class="section-subtitle">
+          Built specifically for campus life — secure, simple, and student-first.
+        </p>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-indigo)">
+              <i data-feather="shield"></i>
+            </div>
+            <h3>Verified Campus Users</h3>
+            <p>Only students and staff with a campus email can join. Every transaction is between verified peers.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-amber)">
+              <i data-feather="zap"></i>
+            </div>
+            <h3>Instant Listings</h3>
+            <p>Post a new item in under 60 seconds. Add photos, set your price, and reach hundreds of buyers instantly.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-emerald)">
+              <i data-feather="search"></i>
+            </div>
+            <h3>Smart Search & Filters</h3>
+            <p>Find exactly what you need with powerful category filters, price ranges, and full-text search.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-rose)">
+              <i data-feather="message-circle"></i>
+            </div>
+            <h3>Zero Platform Fees</h3>
+            <p>We never take a cut. What you list is what you get. No hidden charges, ever.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-cyan)">
+              <i data-feather="smartphone"></i>
+            </div>
+            <h3>Mobile-First Design</h3>
+            <p>Browse and manage your listings on any device — optimized for phones, tablets, and desktops.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="--icon-color: var(--accent-violet)">
+              <i data-feather="trending-up"></i>
+            </div>
+            <h3>Seller Dashboard</h3>
+            <p>Track your listings, manage products, and see engagement stats from your personal seller dashboard.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="how-section" id="how-it-works">
+      <div class="section-container">
+        <div class="section-badge">How it works</div>
+        <h2 class="section-title">From listing to sale<br /> in three steps</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-icon"><i data-feather="user-plus"></i></div>
+            <h3>Create your account</h3>
+            <p>Sign up with your campus email in 30 seconds. No credit card required.</p>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-icon"><i data-feather="camera"></i></div>
+            <h3>List your item</h3>
+            <p>Add photos, a description, and your price. Your listing goes live instantly.</p>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-icon"><i data-feather="check-circle"></i></div>
+            <h3>Connect & sell</h3>
+            <p>Buyers reach out directly. Meet on campus, exchange, done — no middleman.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES SECTION -->
+    <section class="categories-section" id="categories">
+      <div class="section-container">
+        <div class="section-badge">Browse by category</div>
+        <h2 class="section-title">Find what you need</h2>
+        <div class="categories-grid">
+          <button class="cat-card" onclick="openModal('login')" data-cat="books">
+            <div class="cat-icon"><i data-feather="book-open"></i></div>
+            <span>Books &amp; Notes</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="electronics">
+            <div class="cat-icon"><i data-feather="cpu"></i></div>
+            <span>Electronics</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="furniture">
+            <div class="cat-icon"><i data-feather="home"></i></div>
+            <span>Furniture</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="clothing">
+            <div class="cat-icon"><i data-feather="shopping-bag"></i></div>
+            <span>Clothing</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="sports">
+            <div class="cat-icon"><i data-feather="activity"></i></div>
+            <span>Sports</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="stationery">
+            <div class="cat-icon"><i data-feather="edit-3"></i></div>
+            <span>Stationery</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="food">
+            <div class="cat-icon"><i data-feather="coffee"></i></div>
+            <span>Food &amp; Snacks</span>
+          </button>
+          <button class="cat-card" onclick="openModal('login')" data-cat="other">
+            <div class="cat-icon"><i data-feather="grid"></i></div>
+            <span>Other</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+      <div class="cta-orb" aria-hidden="true"></div>
+      <div class="section-container">
+        <div class="cta-content">
+          <h2>Ready to declutter<br /> and earn?</h2>
+          <p>Join thousands of students already trading on campus.</p>
+          <button class="btn-primary btn-hero" onclick="openModal('signup')">
+            Create free account
+            <i data-feather="arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer-landing">
+      <div class="nav-container">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <span class="logo-mark">C</span>
+            <span class="logo-text">CampusMart</span>
+          </a>
+          <p>The peer-to-peer marketplace built for campus communities.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#categories">Categories</a>
+          <button onclick="openModal('signup')" class="link-btn">Sign up</button>
+        </div>
+        <p class="footer-copy">© 2025 CampusMart. Built with ♥ for students.</p>
+      </div>
+    </footer>
+
+  </div>
+  <!-- END LANDING PAGE -->
+
+
+  <!-- ==========================================
+       DASHBOARD (shown when logged in)
+  ========================================== -->
+  <div id="page-dashboard" class="hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="nav-logo" onclick="resetDashboard()">
+          <span class="logo-mark">C</span>
+          <span class="logo-text">CampusMart</span>
+        </a>
+        <button class="sidebar-close" id="sidebar-close" onclick="closeSidebar()" aria-label="Close sidebar">
+          <i data-feather="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Dashboard navigation">
+        <a href="#" class="sidebar-link active" data-section="marketplace" onclick="switchSection('marketplace', this)">
+          <i data-feather="grid"></i>
+          <span>Marketplace</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="my-listings" onclick="switchSection('my-listings', this)">
+          <i data-feather="package"></i>
+          <span>My Listings</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="wishlist" onclick="switchSection('wishlist', this)">
+          <i data-feather="heart"></i>
+          <span>Saved Items</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="profile" onclick="switchSection('profile', this)">
+          <i data-feather="user"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle sidebar-theme" onclick="toggleTheme()" aria-label="Toggle theme">
+          <i data-feather="sun" class="icon-sun"></i>
+          <i data-feather="moon" class="icon-moon"></i>
+          <span class="theme-label">Toggle theme</span>
+        </button>
+        <div class="sidebar-user" id="sidebar-user">
+          <div class="user-avatar" id="sidebar-avatar">A</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebar-name">Loading…</span>
+            <span class="user-email" id="sidebar-email">…</span>
+          </div>
+        </div>
+        <button class="sidebar-logout" onclick="handleLogout()">
+          <i data-feather="log-out"></i>
+          <span>Sign out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay hidden" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="dashboard-main" id="dashboard-main">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger-btn" onclick="openSidebar()" aria-label="Open sidebar">
+            <i data-feather="menu"></i>
+          </button>
+          <div class="topbar-search">
+            <i data-feather="search"></i>
+            <input
+              type="search"
+              id="search-input"
+              placeholder="Search products, categories, sellers…"
+              autocomplete="off"
+              aria-label="Search marketplace"
+            />
+            <kbd>⌘K</kbd>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-primary btn-sm" onclick="requireAuth('modal-add-product')" id="add-product-btn">
+            <i data-feather="plus"></i>
+            <span>List item</span>
+          </button>
+          <div class="topbar-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- ===== MARKETPLACE SECTION ===== -->
+      <section id="section-marketplace" class="dash-section">
+        <div class="section-header">
+          <div>
+            <h1 class="dash-title">Marketplace</h1>
+            <p class="dash-subtitle">Discover items listed by your campus community</p>
+          </div>
+          <div class="section-controls">
+            <div class="filter-chips" id="filter-chips" role="group" aria-label="Filter by category">
+              <button class="chip active" data-cat="all" onclick="filterByCategory('all', this)">All</button>
+              <button class="chip" data-cat="books" onclick="filterByCategory('books', this)">📚 Books</button>
+              <button class="chip" data-cat="electronics" onclick="filterByCategory('electronics', this)">💻 Electronics</button>
+              <button class="chip" data-cat="clothing" onclick="filterByCategory('clothing', this)">👕 Clothing</button>
+              <button class="chip" data-cat="furniture" onclick="filterByCategory('furniture', this)">🛋 Furniture</button>
+              <button class="chip" data-cat="sports" onclick="filterByCategory('sports', this)">⚽ Sports</button>
+              <button class="chip" data-cat="stationery" onclick="filterByCategory('stationery', this)">✏️ Stationery</button>
+              <button class="chip" data-cat="other" onclick="filterByCategory('other', this)">📦 Other</button>
+            </div>
+            <div class="sort-select-wrap">
+              <i data-feather="sliders"></i>
+              <select id="sort-select" onchange="handleSort(this.value)" aria-label="Sort products">
+                <option value="newest">Newest first</option>
+                <option value="price-asc">Price: Low → High</option>
+                <option value="price-desc">Price: High → Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row" id="stats-row">
+          <div class="stat-pill">
+            <i data-feather="package"></i>
+            <span id="stat-total">0 listings</span>
+          </div>
+          <div class="stat-pill">
+            <i data-feather="filter"></i>
+            <span id="stat-filtered">Showing all</span>
+          </div>
+        </div>
+
+        <!-- Product grid -->
+        <div class="product-grid" id="product-grid" role="list" aria-label="Product listings">
+          <!-- Products injected by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state hidden" id="empty-state">
+          <div class="empty-icon"><i data-feather="inbox"></i></div>
+          <h3>No listings found</h3>
+          <p>Try adjusting your search or filters, or be the first to list something!</p>
+          <button class="btn-primary" onclick="requireAuth('modal-add-product')">
+            <i data-feather="plus"></i> Post a listing
+          </button>
+        </div>
+
+        <!-- Loading skeleton -->
+        <div class="product-grid" id="product-skeleton">
+          <div class="product-skeleton"></div>
+          <div class="product-skeleton"></div>
+          <div class="product-skeleton"></div>
+          <div class="product-skeleton"></div>
+          <div class="product-skeleton"></div>
+          <div class="product-skeleton"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+      </section>
+
+      <!-- ===== MY LISTINGS SECTION ===== -->
+      <section id="section-my-listings" class="dash-section hidden">
+        <div class="section-header">
+          <div>
+            <h1 class="dash-title">My Listings</h1>
+            <p class="dash-subtitle">Manage the items you've posted for sale</p>
+          </div>
+          <button class="btn-primary btn-sm" onclick="requireAuth('modal-add-product')">
+            <i data-feather="plus"></i> New listing
+          </button>
+        </div>
+        <div class="product-grid" id="my-product-grid" role="list" aria-label="My listings">
+          <!-- Injected by JS -->
+        </div>
+        <div class="empty-state hidden" id="my-empty-state">
+          <div class="empty-icon"><i data-feather="package"></i></div>
+          <h3>You haven't listed anything yet</h3>
+          <p>Start selling your unused items and earn some cash!</p>
+          <button class="btn-primary" onclick="requireAuth('modal-add-product')">
+            <i data-feather="plus"></i> Post your first item
+          </button>
+        </div>
+      </section>
+
+      <!-- ===== SAVED ITEMS SECTION ===== -->
+      <section id="section-wishlist" class="dash-section hidden">
+        <div class="section-header">
+          <div>
+            <h1 class="dash-title">Saved Items</h1>
+            <p class="dash-subtitle">Products you've bookmarked for later</p>
+          </div>
+        </div>
+        <div class="product-grid" id="wishlist-grid" role="list" aria-label="Saved items"></div>
+        <div class="empty-state" id="wishlist-empty-state">
+          <div class="empty-icon"><i data-feather="heart"></i></div>
+          <h3>Nothing saved yet</h3>
+          <p>Tap the heart icon on any listing to save it here.</p>
+          <button class="btn-primary" onclick="switchSection('marketplace', document.querySelector('[data-section=marketplace]'))">
+            Browse marketplace
+          </button>
+        </div>
+      </section>
+
+      <!-- ===== PROFILE SECTION ===== -->
+      <section id="section-profile" class="dash-section hidden">
+        <div class="section-header">
+          <div>
+            <h1 class="dash-title">Profile</h1>
+            <p class="dash-subtitle">Manage your account information</p>
+          </div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar" id="profile-avatar">A</div>
+            <div class="profile-badge">Student</div>
+          </div>
+          <div class="profile-details">
+            <h2 id="profile-name">Loading…</h2>
+            <p id="profile-email" class="profile-email">…</p>
+            <div class="profile-stats">
+              <div class="pstat">
+                <span class="pstat-val" id="profile-listing-count">0</span>
+                <span class="pstat-label">Listings</span>
+              </div>
+              <div class="pstat">
+                <span class="pstat-val" id="profile-saved-count">0</span>
+                <span class="pstat-label">Saved</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  <!-- END DASHBOARD -->
+
+  <!-- Product detail drawer -->
+  <div id="product-drawer" class="product-drawer hidden" role="dialog" aria-modal="true" aria-label="Product details">
+    <div class="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer-panel">
+      <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">
+        <i data-feather="x"></i>
+      </button>
+      <div class="drawer-content" id="drawer-content">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
